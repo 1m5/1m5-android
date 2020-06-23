@@ -14,14 +14,12 @@ import ra.servicebus.ServiceBus;
  * helper methods.
  */
 public class ServiceBusIntent extends IntentService {
-    // TODO: Rename actions, choose action names that describe tasks that this
-    // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
+
     private static final String ACTION_START_BUS = "onemfive.android.action.START_BUS";
     private static final String ACTION_STOP_BUS = "onemfive.android.action.STOP_BUS";
 
-    // TODO: Rename parameters
-    private static final String EXTRA_PARAM1 = "onemfive.android.extra.PARAM1";
-    private static final String EXTRA_PARAM2 = "onemfive.android.extra.PARAM2";
+    private static final String MAX_MANCON = "onemfive.android.extra.MAX_MANCON";
+    private static final String GRACEFUL = "onemfive.android.extra.GRACEFUL";
 
     private ServiceBus serviceBus;
 
@@ -36,11 +34,10 @@ public class ServiceBusIntent extends IntentService {
      * @see IntentService
      */
     // TODO: Customize helper method
-    public static void startBus(Context context, String param1, String param2) {
+    public static void startBus(Context context, String maxManCon) {
         Intent intent = new Intent(context, ServiceBusIntent.class);
         intent.setAction(ACTION_START_BUS);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
+        intent.putExtra(MAX_MANCON, maxManCon);
         context.startService(intent);
     }
 
@@ -51,11 +48,10 @@ public class ServiceBusIntent extends IntentService {
      * @see IntentService
      */
     // TODO: Customize helper method
-    public static void stopBus(Context context, String param1, String param2) {
+    public static void stopBus(Context context, String graceful) {
         Intent intent = new Intent(context, ServiceBusIntent.class);
         intent.setAction(ACTION_STOP_BUS);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
+        intent.putExtra(GRACEFUL, graceful);
         context.startService(intent);
     }
 
@@ -64,13 +60,11 @@ public class ServiceBusIntent extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_START_BUS.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionFoo(param1, param2);
+                final String maxManCon = intent.getStringExtra(MAX_MANCON);
+                handleStartBus(maxManCon);
             } else if (ACTION_STOP_BUS.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionBaz(param1, param2);
+                final String graceful = intent.getStringExtra(GRACEFUL);
+                handleStopBus(graceful);
             }
         }
     }
@@ -79,17 +73,20 @@ public class ServiceBusIntent extends IntentService {
      * Handle action Foo in the provided background thread with the provided
      * parameters.
      */
-    private void handleActionFoo(String param1, String param2) {
-        // TODO: Handle action Foo
-        throw new UnsupportedOperationException("Not yet implemented");
+    private void handleStartBus(String maxManCon) {
+//        super.getApplicationContext().getSharedPreferences()
+        serviceBus = new ServiceBus();
+//        serviceBus.start(props);
     }
 
     /**
      * Handle action Baz in the provided background thread with the provided
      * parameters.
      */
-    private void handleActionBaz(String param1, String param2) {
-        // TODO: Handle action Baz
-        throw new UnsupportedOperationException("Not yet implemented");
+    private void handleStopBus(String graceful) {
+        if("true".equals(graceful))
+            serviceBus.gracefulShutdown();
+        else
+            serviceBus.shutdown();
     }
 }
